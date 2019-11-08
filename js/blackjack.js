@@ -7,7 +7,7 @@ var drawCard    = getDeckOfCards(2) // defined in deck.js
 ;
 
 // Begins a new round of the game
-function startRound() {
+function startRound(startPlayerTurn) {
     console.log('[ jack ] beginning game ');
 
     player = initPlayer();
@@ -44,7 +44,9 @@ function initDealer() {
 // Draws a card for the player object
 function hit(person, showBackOfCard) {
     var card = drawCard();
-    if (showBackOfCard) card.back = showBackOfCard;
+    if (showBackOfCard) {
+        card.back = showBackOfCard;
+	}
     person.cards.push(card);
     person.score = updateScore(person.cards);
     person.draw(card);
@@ -70,13 +72,14 @@ function updateScore(cardArr) {
 }
 
 // Finish the round by having the dealer hit cards
-function startDealerTurn() {
+function startDealerTurn(endGame) {
     console.log('[ jack ] dealer beginning turn');
     dealer.cards[0].back = false;
     dealer.score = updateScore(dealer.cards);
 
     if (player.score > 21 || dealer.score > player.score) {
         table.gameOver('Dealer Wins');
+        endGame();
         return;
     }
 
@@ -92,7 +95,8 @@ function startDealerTurn() {
     } else if (dealer.score == player.score) {
         table.gameOver('Tie Game');
     } else {
-        table.gmaeOver('Player Wins');
-    } 
+        table.gameOver('Player Wins');
+    }
+    endGame();
 }
 

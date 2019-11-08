@@ -1,46 +1,68 @@
 // Seth Champagne - CMPS 411 - 12.02.15
 // UI controller of the blackjack game
 //  | blackjack.js  - handles game logic
-//  | deck.js       - manages the deck of cards 
+//  | deck.js       - manages the deck of cards
 //  | gameTable.js  - controls all the canvas animations
 
-// NOW FEATURING VOICE CONTROLS!!
-
-$(function() {
+window.onload = function() {
     console.log('[ ui ] we made it');
+
     var canvas = document.getElementById('blackjack');
-    
+    var startBtn = document.getElementById('start-btn');
+    var holdBtn = document.getElementById('hold-btn');
+    var hitBtn = document.getElementById('hit-btn');
+    var images = document.getElementById('images');
+
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('click', true, false);
+
     table.init(canvas.getContext('2d'));
 
+    function startPlayerTurn() {
+        console.log('[ ui ] beginning player turn');
+        if (player.score == 21) {
+            holdBtn.dispatchEvent(event);
+            endGame();
+        }
+        hitBtn.disabled = false;
+        holdBtn.disabled = false;
+    }
+    
+    function endGame() {
+        console.log('[ ui ] end of game');
+        hitBtn.disabled = true;
+        holdBtn.disabled = true;
+    }
+
     cards.forEach(function(card) {
-        var image = $('<img>').attr({src : card.loc, id : card.id});
-        $('#images').append(image);
+        var img = document.createElement('img');
+        img.setAttribute('src', card.loc);
+        img.setAttribute('id', card.id);
+        images.appendChild(img);
     })
 
-    $('#start-btn').on('click', function() {
+    startBtn.addEventListener('click', function() {
         // Begins game (blackjack.js)
         console.log('[ ui ] start button clicked');
-        startRound();
+        startRound(startPlayerTurn);
     });
 
-    $('#hit-btn').on('click', function() {
-        // Call funciton to draw card for player
+    hitBtn.addEventListener('click', function() {
+        // Call function to draw card for player
         console.log('[ ui ] hit button clicked');
         hit(player);
-        if (player.score >= 21) $('#hold-btn').trigger('click');
-    }).prop('disabled', true);
+        if (player.score >= 21) {
+            holdBtn.dispatchEvent(event);
+        }
+    });
 
-    $('#hold-btn').on('click', function() {
+    holdBtn.addEventListener('click', function() {
         // Player is done drawing cards
         console.log('[ ui ] hold button clicked');
-        $('#hit-btn, #hold-btn').prop('disabled', false);
-        startDealerTurn(); 
-    }).prop('disabled', true);
-});
+        hitBtn.disabled = false;
+        holdBtn.disabled = false;
+        startDealerTurn(endGame);
+    });
 
-function startPlayerTurn() {
-    console.log('[ ui ] beginning player turn');
-    if (player.score == 21) $('#hold-btn').trigger('click');
-    $('#hit-btn, #hold-btn').prop('disabled', false);
-}
+};
 
